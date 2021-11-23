@@ -1,0 +1,40 @@
+{
+    "name": "samireltabal/auth-system",
+    "description": "Authentication system for laravel based on passport",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SamirEltabal\\AuthSystem\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Samir eltabal",
+            "email": "samir.m.eltabal@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SamirEltabal\\AuthSystem\\AuthSystemServiceProvider"
+            ],
+            "aliases": {
+                "AuthSystem": "SamirEltabal\\AuthSystem\\AuthSystemFacade"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "laravel/framework": "^8.65",
+        "php": "^7.3|^8.0",
+        "laravel/passport": "^10.1",
+        "laravel/socialite": "^5.2.0",
+        "spatie/laravel-medialibrary": "^9.9.0",
+        "spatie/laravel-permission": "^5.3"
+    },
+    "prefer-stable": true
+}
