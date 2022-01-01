@@ -12,6 +12,7 @@
   use SamirEltabal\AuthSystem\Notifications\PasswordResetSuccess;
   use Laravel\Passport\TokenRepository;
   use App\Models\User;
+  use SamirEltabal\EmqxAuth\Notifications\WsNotification;
   use SamirEltabal\AuthSystem\Models\PasswordReset;
   use Illuminate\Http\Request;
   use Hash;
@@ -61,14 +62,16 @@
                 $success['user_data'] =  $user;
                 return response()->json($success, 200);
             } else {
-                $error = array(
+              $message = "Failed Login from : " . $request->ip();
+              $user->notify(new WsNotification($user, $message));   
+              $error = array(
                     'message'   => __('Unauthorized'),
                     'status'    => 401,
                 );
                 return response()->json($error, 401);
             }
         }
-        else{ 
+        else{
             $error = array(
                 'message'   => __('Unauthorized'),
                 'status'    => 401,
@@ -92,6 +95,7 @@
     public function register(SignUpRequest $request) {
       $input = $request->all();
       $user = User::create($input);
+      $user->syncRoles(['user']);
       $otp = OTP::generate($user, true);
       $user->notify(new verifyUser($otp->code));
       $success = array();
@@ -222,6 +226,7 @@
       if (\Hash::check($data['password'], $user->password)) {
           $user->password = $data['new_password'];
           $user->save();
+          $user->notify(new WsNotification($user, 'password has been updated'));
           return response()->json([
               'message' => __('successfully updated')
           ], 200);
@@ -330,5 +335,22 @@ public function reset(Request $request) {
     \DB::delete($q, [$request->input('email')]);  
     return response()->json(["message" => "Password has been successfully changed"], 200);
 }
+
+  public function mark_all_as_read() {
+    $user = \Auth::user();
+    $user->unreadNotifications->markAsRead();
+    return response()->json('ok', 200);
+  }
+
+  public function mark_as_read($id) {
+    $user = \Auth::user();
+    $notification = $user->unreadNotifications->where('id', $id);
+    return $notification->markAsRead();
+  }
+
+  public function delete_notification() {
+    $user = \Auth::user();
+    return $user->notifications()->delete();
+  }
 
 }

@@ -32,8 +32,14 @@
             $this->fillable[] = 'uuid';
             $this->fillable[] = 'phone';
             $this->with[] = 'social';
-            $this->appends[] = 'Avatar';
-            $this->appends[] = 'Role';
+            $this->with[] = 'notifications';
+            $this->with[] = 'unreadNotifications';
+            $this->appends[] = 'avatar';
+            $this->appends[] = 'role';
+            $this->appends[] = 'services';
+            $this->hidden[] = 'media';
+            $this->hidden[] = 'social';
+            $this->hidden[] = 'roles';
             parent::__construct($attributes);
         }
 
@@ -61,8 +67,8 @@
         {
             $this->addMediaCollection('avatars')
             ->singleFile()
-            ->useFallbackUrl('/default-profile.jpg')
-            ->useFallbackPath(public_path('/default-profile.jpg'));
+            ->useFallbackUrl('/default-profile.png')
+            ->useFallbackPath(public_path('/default-profile.png'));
         }
 
         public function getAvatarAttribute() {
@@ -91,6 +97,10 @@
             return $this->roles[0] ? $this->roles[0]->name : 'n/a';
         }
 
+        public function scopeUuid($query, $uuid) {
+            return $query->where('uuid', '=', $uuid);
+        }
+
         public function social()
         {
             return $this->hasMany('SamirEltabal\AuthSystem\Models\SocialLink', 'user_id', 'id');
@@ -99,5 +109,13 @@
         public function hasSocialLinked($service)
         {
             return (bool) $this->social->where('service', $service)->count();
+        }
+
+        public function getServicesAttribute() {
+            $data = array();
+            foreach ($this->social as $social) {
+                $data[] = $social->service;
+            }
+            return $data;
         }
     }

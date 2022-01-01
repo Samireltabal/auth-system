@@ -40,7 +40,7 @@
             $user = User::create([
                 'name' => $serviceUser['name'],
                 'email' => $email,
-                'phone' => $serviceUser['id'] ,
+                'phone' =>  substr($serviceUser['id'], 0, 15),
                 'password' => '',
                 'uuid' => Str::uuid()
             ]);
@@ -57,7 +57,7 @@
             ]);
         }
         $token = $user->createToken('MyApp')->accessToken;
-        return redirect(env('CLIENT_BASE_URL') . '/auth/social-callback?token=' . $token . '&origin=' . ($newUser ? 'register' : 'login'));
+        return redirect(env('CLIENT_BASE_URL') . 'social/' . $service . '/login/callback?token=' . $token . '&origin=' . ($newUser ? 'register' : 'login'));
     }
 
     public function needsToCreateSocial(User $user, $service)
